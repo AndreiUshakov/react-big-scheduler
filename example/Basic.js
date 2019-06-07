@@ -14,8 +14,9 @@ class Basic extends Component{
         super(props);
 
         //let schedulerData = new SchedulerData(new moment("2017-12-18").format(DATE_FORMAT), ViewTypes.Week);
-        let schedulerData = new SchedulerData('2017-12-18', ViewTypes.Week);
-        schedulerData.localeMoment.locale('en');
+        const newConf = {minuteStep: 15}
+        let schedulerData = new SchedulerData('2017-12-18', ViewTypes.Day, false,false,false, newConf);
+        schedulerData.localeMoment.locale('ru');
         schedulerData.setResources(DemoData.resources);
         schedulerData.setEvents(DemoData.events);
         this.state = {

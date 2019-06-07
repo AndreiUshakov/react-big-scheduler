@@ -38,9 +38,9 @@ import 'antd/lib/calendar/style/index.css'
 import EventItem from './EventItem'
 import DnDSource from './DnDSource'
 import DnDContext from './DnDContext'
-import ResourceView from './ResourceView'
-import HeaderView from './HeaderView'
-import BodyView from './BodyView'
+import ResourceView, {PlanerResorceView} from './ResourceView'
+import HeaderView, {PlannerTimeLineView} from './HeaderView'
+import BodyView, {PlannerBodyView} from './BodyView'
 import ResourceEvents from './ResourceEvents'
 import AgendaView from './AgendaView'
 import AddMorePopover from './AddMorePopover'
@@ -49,6 +49,7 @@ import CellUnits from './CellUnits'
 import SummaryPos from './SummaryPos'
 import SchedulerData from './SchedulerData'
 import DemoData from './DemoData'
+import moment from 'moment';
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
@@ -194,6 +195,9 @@ class Scheduler extends Component {
                                 dndSource={eventDndSource}
                 />
             });
+
+            console.log("index", resourceEventsList);
+            console.log("displayRenderData", displayRenderData);
 
             let contentScrollbarHeight = this.state.contentScrollbarHeight,
                 contentScrollbarWidth = this.state.contentScrollbarWidth,
@@ -482,7 +486,183 @@ class Scheduler extends Component {
     }
 }
 
+class Planner extends Scheduler{
+    constructor(props){
+        super(props)
+    }
+
+    render() {
+        const { schedulerData, leftCustomHeader, rightCustomHeader } = this.props;
+        const { renderData, viewType, showAgenda, isEventPerspective, config } = schedulerData;
+        const width = schedulerData.getSchedulerWidth();
+        const calendarPopoverEnabled = config.calendarPopoverEnabled;
+
+        let dateLabel = schedulerData.getDateLabel();
+        let defaultValue = `${viewType}${showAgenda ? 1 : 0}${isEventPerspective ? 1 : 0}`;
+        let radioButtonList = config.views.map(item => {
+            return <RadioButton key={`${item.viewType}${item.showAgenda ? 1 : 0}${item.isEventPerspective ? 1 : 0}`}
+                                value={`${item.viewType}${item.showAgenda ? 1 : 0}${item.isEventPerspective ? 1 : 0}`}><span
+                style={{margin: "0px 8px"}}>{item.viewName}</span></RadioButton>
+        })
+
+        let tbodyContent = <tr />;
+        if (showAgenda) {
+            tbodyContent = <AgendaView
+                                {...this.props}
+                            />
+        }
+        else {
+            let resourceTableWidth = schedulerData.getResourceTableWidth();
+            let schedulerContainerWidth = width - resourceTableWidth + 1;
+            let schedulerWidth = schedulerData.getContentTableWidth() - 1;
+            let DndResourceEvents = this.state.dndContext.getDropTarget();
+            let eventDndSource = this.state.dndContext.getDndSource();
+
+            let displayRenderData = renderData.filter(o => o.render);
+            //console.log(displayRenderData);
+            let resourceEventsList = displayRenderData.map((item) => {
+                return <DndResourceEvents
+                                {...this.props}
+                                key={item.slotId}
+                                resourceEvents={item}
+                                dndSource={eventDndSource}
+                />
+            });
+
+            let contentScrollbarHeight = this.state.contentScrollbarHeight,
+                contentScrollbarWidth = this.state.contentScrollbarWidth,
+                resourceScrollbarHeight = this.state.resourceScrollbarHeight,
+                resourceScrollbarWidth = this.state.resourceScrollbarWidth,
+                contentHeight = this.state.contentHeight;
+            let resourcePaddingBottom = resourceScrollbarHeight === 0 ? contentScrollbarHeight : 0;
+            let contentPaddingBottom = contentScrollbarHeight === 0 ? resourceScrollbarHeight : 0;
+            let schedulerContentStyle = {overflow: 'auto', margin: "0px", position: "relative", paddingBottom: contentPaddingBottom};
+            let resourceContentStyle = {overflowX: "auto", overflowY: "auto", width: resourceTableWidth + resourceScrollbarWidth - 2, margin: `0px -${contentScrollbarWidth}px 0px 0px`};
+            if (config.schedulerMaxHeight > 0) {
+                schedulerContentStyle = {
+                    ...schedulerContentStyle,
+                    maxHeight: config.schedulerMaxHeight - config.tableHeaderHeight
+                };
+                resourceContentStyle = {
+                    ...resourceContentStyle,
+                    maxHeight: config.schedulerMaxHeight - config.tableHeaderHeight
+                };
+            }
+
+            let resourceName = schedulerData.isEventPerspective ? config.taskName : config.resourceName;
+            tbodyContent = (
+                <tr>
+                    <td style={{width: resourceTableWidth, verticalAlign: 'top'}}>
+                        <div className="resource-view">
+                            <div style={{overflow: "hidden", borderBottom: "1px solid #e9e9e9", height: config.tableHeaderHeight}}>
+                                <div style={{overflowX: "scroll", overflowY: "hidden", margin: `0px 0px -${contentScrollbarHeight}px`}}>
+                                    <table className="resource-table">
+                                        <thead>
+                                        <tr style={{height: config.tableHeaderHeight}}>
+                                            <th className="header3-text">
+                                                {resourceName}
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                            <div style={resourceContentStyle} ref={this.schedulerResourceRef} onMouseOver={this.onSchedulerResourceMouseOver} onMouseOut={this.onSchedulerResourceMouseOut} onScroll={this.onSchedulerResourceScroll}>
+                                
+                                <PlannerTimeLineView
+                                    {...this.props}
+                                    contentScrollbarHeight={resourcePaddingBottom}
+                                />
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div className="scheduler-view" style={{verticalAlign: 'top'}}>
+                            <div style={{overflow: "hidden", borderBottom: "1px solid #e9e9e9", height: config.tableHeaderHeight}}>
+                                <div style={{overflowY: "hidden", margin: `0px 0px -${contentScrollbarHeight}px`}} ref={this.schedulerHeadRef} onMouseOver={this.onSchedulerHeadMouseOver} onMouseOut={this.onSchedulerHeadMouseOut} onScroll={this.onSchedulerHeadScroll}>
+                                    <div style={{paddingRight: `${contentScrollbarWidth}px`}}>
+                                        <table className="scheduler-bg-table">
+                                            <PlanerResorceView {...this.props}/>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={schedulerContentStyle} ref={this.schedulerContentRef} onMouseOver={this.onSchedulerContentMouseOver} onMouseOut={this.onSchedulerContentMouseOut} onScroll={this.onSchedulerContentScroll} >
+                                <div style={{height: contentHeight}}>
+                                    <div className="scheduler-content">
+                                        <table className="scheduler-content-table" >
+                                            <tbody>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="scheduler-bg">
+                                        <table className="scheduler-bg-table" ref={this.schedulerContentBgTableRef} >
+                                            <PlannerBodyView {...this.props}/>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            );
+        };
+
+        let popover = <div className="popover-calendar"><Calendar fullscreen={false} onSelect={this.onSelect}/></div>;
+        let schedulerHeader = <div />;
+        let titleStartDate = moment(schedulerData.startDate).format("DD.MM");
+        let titleEndDate = moment(schedulerData.endDate).format("DD.MM.YYYY");
+        if(config.headerEnabled) {
+            schedulerHeader = (
+                <Row type="flex" align="middle" justify="space-between" style={{marginBottom: '24px'}}>
+                    {leftCustomHeader}
+                    <Col>
+                        <div className='header2-text date-change-control'>
+                            <Icon type="left" style={{marginRight: "8px"}} className="icon-nav"
+                                    onClick={this.goBack}/>
+                            {
+                            calendarPopoverEnabled
+                                ?
+                                <Popover content={popover} placement="bottom" trigger="click"
+                                        visible={this.state.visible}
+                                        onVisibleChange={this.handleVisibleChange}>
+                                <span className={'header2-text-label'} style={{cursor: 'pointer'}}>{dateLabel}</span>
+                                </Popover>
+                                : <span className={'header2-text-label'}>{dateLabel}</span>
+                            }
+                            <Icon type="right" style={{marginLeft: "8px"}} className="icon-nav"
+                                    onClick={this.goNext}/>
+                        </div>
+                    </Col>
+                    <Col><h1>План работы на сцене Большого театра с {titleStartDate} - {titleEndDate} </h1> </Col>
+                    <Col />
+                    
+                    {rightCustomHeader}
+                </Row>
+            );
+        }
+
+        return (
+            <table id="RBS-Scheduler-root" className="scheduler" style={{width: `${width}px`}}>
+                <thead>
+                <tr>
+                    <td colSpan="2">
+                        {schedulerHeader}
+                    </td>
+                </tr>
+                </thead>
+                <tbody>
+                {tbodyContent}
+                </tbody>
+            </table>
+        )
+    }
+
+}
+
 export const DATE_FORMAT = 'YYYY-MM-DD';
 export const DATETIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 export {SchedulerData, ViewTypes, CellUnits, SummaryPos, DnDSource, DnDContext, AddMorePopover, DemoData}
 export default Scheduler
+export const ResPlanner = Planner
