@@ -59,12 +59,11 @@ export class PlannerBodyView extends BodyView{
     }
 
     render() {
-
+        console.log("titlesize", this.state);
         const {schedulerData} = this.props;
         console.log("schedulerData",schedulerData);
         const {renderData, headers, config, behaviors} = schedulerData;
         let cellWidth = schedulerData.getContentCellWidth();
-
         let displayRenderData = renderData.filter(o => o.render);
         console.log(headers, displayRenderData);
 
@@ -80,14 +79,15 @@ export class PlannerBodyView extends BodyView{
                         const h = {height: `${heightArea}px`, backgroundColor:resource.slotBgColor, borderRadius:"6px" };
                         const tStart = moment(ev.start).format("HH:mm");
                         const tEnd = moment(ev.end).format("HH:mm");
+                        const f = {fontSize:`${schedulerData.titlesize}px`}
                         return (
                             <a className="timeline-event event-area" draggable="true" >
-                                <div  style={h}>
+                                <div style={h}>
                                     <span className="time-pad"> 
                                         <span className="time-cell">{tStart}</span>
                                         <span className="time-cell">{tEnd}</span>
                                     </span>
-                                    <span className="title-pad">{ev.title}</span>                                    
+                                    <span className="title-pad" style={f}>{ev.title}</span>                                    
                                 </div>
                             </a>)});
 

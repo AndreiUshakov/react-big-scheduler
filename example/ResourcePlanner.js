@@ -4,9 +4,6 @@ import {PropTypes} from 'prop-types'
 //import 'moment/locale/zh-cn';
 // import 'antd/lib/style/index.less';     //Add this code for locally example
 import Scheduler, {SchedulerData, ViewTypes, DATE_FORMAT, DemoData, ResPlanner} from '../src/index'
-import Nav from './Nav'
-import Tips from './Tips'
-import ViewSrcCode from './ViewSrcCode'
 import withDragDropContext from './withDnDContext'
 
 class Basic extends Component{
@@ -114,25 +111,25 @@ class Basic extends Component{
                     </div>
                     </div>
                     <ResPlanner schedulerData={viewModel}
-                               prevClick={this.prevClick}
-                               nextClick={this.nextClick}
-                               onSelectDate={this.onSelectDate}
-                               onViewChange={this.onViewChange}
-                               eventItemClick={this.eventClicked}
-                               viewEventClick={this.ops1}
-                               viewEventText="Ops 1"
-                               viewEvent2Text="Ops 2"
-                               viewEvent2Click={this.ops2}
-                               updateEventStart={this.updateEventStart}
-                               updateEventEnd={this.updateEventEnd}
-                               moveEvent={this.moveEvent}
-                               newEvent={this.newEvent}
-                               onScrollLeft={this.onScrollLeft}
-                               onScrollRight={this.onScrollRight}
-                               onScrollTop={this.onScrollTop}
-                               onScrollBottom={this.onScrollBottom}
-                               nonAgendaCellHeaderTemplateResolver = {this.nonAgendaCellHeaderTemplateResolver}
-                               toggleExpandFunc={this.toggleExpandFunc}
+                                prevClick={this.prevClick}
+                                nextClick={this.nextClick}
+                                onSelectDate={this.onSelectDate}
+                                onViewChange={this.onViewChange}
+                                eventItemClick={this.eventClicked}
+                                viewEventClick={this.ops1}
+                                viewEventText="Ops 1"
+                                viewEvent2Text="Ops 2"
+                                viewEvent2Click={this.ops2}
+                                updateEventStart={this.updateEventStart}
+                                updateEventEnd={this.updateEventEnd}
+                                moveEvent={this.moveEvent}
+                                newEvent={this.newEvent}
+                                onScrollLeft={this.onScrollLeft}
+                                onScrollRight={this.onScrollRight}
+                                onScrollTop={this.onScrollTop}
+                                onScrollBottom={this.onScrollBottom}
+                                nonAgendaCellHeaderTemplateResolver = {this.nonAgendaCellHeaderTemplateResolver}
+                                toggleExpandFunc={this.toggleExpandFunc}
                     />
                 </div>
                

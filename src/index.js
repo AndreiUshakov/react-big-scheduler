@@ -50,6 +50,9 @@ import SummaryPos from './SummaryPos'
 import SchedulerData from './SchedulerData'
 import DemoData from './DemoData'
 import moment from 'moment';
+import {Button} from 'antd';
+import HTML5Backend from 'react-dnd-html5-backend'
+import { DragDropContext } from 'react-dnd'
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
@@ -57,7 +60,6 @@ class Scheduler extends Component {
 
     constructor(props) {
         super(props);
-
         const {schedulerData, dndSources} = props;
         let sources = [];
         sources.push(new DnDSource((props) => {
@@ -70,6 +72,7 @@ class Scheduler extends Component {
 
         this.currentArea = -1;
         schedulerData._setDocumentWidth(document.documentElement.clientWidth);
+        schedulerData.titlesize = 12;
         this.state = {
             visible: false,
             dndContext: dndContext,
@@ -82,6 +85,8 @@ class Scheduler extends Component {
             scrollTop: 0,
             documentWidth: document.documentElement.clientWidth,
             documentHeight: document.documentElement.clientHeight,
+            titlesize: 14,
+            stylesize: 1,
         };
 
         if(schedulerData.isSchedulerResponsive())
@@ -174,12 +179,12 @@ class Scheduler extends Component {
         })
 
         let tbodyContent = <tr />;
-        if (showAgenda) {
+       /* if (showAgenda) {
             tbodyContent = <AgendaView
                                 {...this.props}
                             />
         }
-        else {
+        else { */
             let resourceTableWidth = schedulerData.getResourceTableWidth();
             let schedulerContainerWidth = width - resourceTableWidth + 1;
             let schedulerWidth = schedulerData.getContentTableWidth() - 1;
@@ -217,7 +222,7 @@ class Scheduler extends Component {
                     ...resourceContentStyle,
                     maxHeight: config.schedulerMaxHeight - config.tableHeaderHeight
                 };
-            }
+        //    }
 
             let resourceName = schedulerData.isEventPerspective ? config.taskName : config.resourceName;
             tbodyContent = (
@@ -475,6 +480,46 @@ class Scheduler extends Component {
     handleVisibleChange = (visible) => {
         this.setState({visible});
     }
+    
+    
+    increaseSize = () => {
+        const {schedulerData} = this.props;
+        if (schedulerData.titlesize == undefined) {
+            schedulerData.titlesize = 12;
+            this.setState({titlesize : schedulerData.titlesize});
+            }
+            else if (schedulerData.titlesize <= 20) {
+            schedulerData.titlesize = schedulerData.titlesize + 2;
+            this.setState({titlesize : schedulerData.titlesize});
+            }
+            console.log("titlesize", schedulerData.titlesize);
+    }
+
+    decreaseSize = () => {
+        const {schedulerData} = this.props;
+        if (schedulerData.titlesize == undefined) {
+            schedulerData.titlesize = 12;
+            this.setState({titlesize : schedulerData.titlesize});
+            }
+            else if (schedulerData.titlesize >= 8) {
+            schedulerData.titlesize = schedulerData.titlesize - 2;
+            this.setState({titlesize : schedulerData.titlesize});
+            }
+            console.log("titlesize", schedulerData.titlesize);
+    }
+
+    resetSize = () => {
+        const {schedulerData} = this.props;
+        if (schedulerData.titlesize == undefined) {
+            schedulerData.titlesize = 12;
+            this.setState({titlesize : schedulerData.titlesize});
+            }
+            else{
+            schedulerData.titlesize = 12;
+            this.setState({titlesize : schedulerData.titlesize});
+            }
+            console.log("titlesize", schedulerData.titlesize);
+    }
 
     onSelect = (date) => {
         this.setState({
@@ -609,6 +654,8 @@ class Planner extends Scheduler{
             );
         };
 
+        
+
         let popover = <div className="popover-calendar"><Calendar fullscreen={false} onSelect={this.onSelect}/></div>;
         let schedulerHeader = <div />;
         let titleStartDate = moment(schedulerData.startDate).format("DD.MM");
@@ -634,6 +681,11 @@ class Planner extends Scheduler{
                             <Icon type="right" style={{marginLeft: "8px"}} className="icon-nav"
                                     onClick={this.goNext}/>
                         </div>
+                    </Col>
+                    <Col>
+                        <Button type="primary" onClick={this.increaseSize}>+</Button>
+                        <Button type="primary" onClick={this.resetSize}>Reset</Button>
+                        <Button type="primary" onClick={this.decreaseSize}>-</Button>
                     </Col>
                     <Col><h1>План работы на сцене Большого театра с {titleStartDate} - {titleEndDate} </h1> </Col>
                     <Col />
