@@ -313,7 +313,6 @@ table.resource-table tr td:last-child, /*table.scheduler-bg-table tr td:last-chi
     overflow:hidden;
     line-height:12px;
     max-height:36px;
-    font-size:12px;
     width: calc(100%-37px);
     vertical-align: baseline;
     float: left;
