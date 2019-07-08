@@ -86,7 +86,6 @@ class Scheduler extends Component {
             documentWidth: document.documentElement.clientWidth,
             documentHeight: document.documentElement.clientHeight,
             titlesize: 14,
-            stylesize: 1,
         };
 
         if(schedulerData.isSchedulerResponsive())
